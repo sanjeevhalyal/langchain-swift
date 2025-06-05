@@ -3,6 +3,7 @@
 //  
 //
 //  Created by 顾艳华 on 2023/8/31.
+//  Updated by sanjeev halyal on 2025/07/05
 //
 
 import Foundation
@@ -24,6 +25,41 @@ public class LLMResult {
     }
     public func getGeneration() -> AsyncThrowingStream<String?, Error>? {
         nil
+    }
+}
+
+
+public class LocalMLXLLMResult: LLMResult {
+    public let generation: AsyncThrowingStream<String, Error>?
+
+    init(generation: AsyncThrowingStream<String, Error>? = nil, llm_output: String? = nil) {
+        self.generation = generation
+        super.init(llm_output: llm_output, stream: generation != nil && llm_output == nil)
+    }
+    
+    public override func setOutput() async throws {
+        if stream {
+            llm_output = ""
+            for try await c in generation! {
+                llm_output! += c
+            }
+        }
+    }
+    
+    public override func getGeneration() -> AsyncThrowingStream<String?, Error> {
+        return AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    for try await c in generation! {
+                        continuation.yield(c)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            
+        }
     }
 }
 

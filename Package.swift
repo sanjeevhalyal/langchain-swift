@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9.0
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,9 +6,9 @@ import PackageDescription
 let package = Package(
     name: "langchain-swift",
     platforms: [
-        .iOS(.v15),
-        .macOS(.v12),
-        .watchOS(.v8),
+        .iOS(.v18),
+        .macOS(.v15),
+        .watchOS(.v9),
         .visionOS(.v1)
     ],
     products: [
@@ -28,6 +28,7 @@ let package = Package(
         .package(url: "https://github.com/google/generative-ai-swift", .upToNextMajor(from: "0.4.4")),
         .package(url: "https://github.com/buhe/SwiftyNotion", .upToNextMajor(from: "0.1.5")),
         .package(url: "https://github.com/nmdias/FeedKit", .upToNextMajor(from: "9.1.2")),
+        .package(url: "https://github.com/ml-explore/mlx-swift-examples/", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -46,6 +47,8 @@ let package = Package(
                 .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
                 .product(name: "SwiftyNotion", package: "SwiftyNotion"),
                 .product(name: "FeedKit", package: "FeedKit"),
+                .product(name: "MLXLLM", package: "mlx-swift-examples"),
+                .product(name: "MLXLMCommon", package: "mlx-swift-examples"),
             ]
         
         ),
