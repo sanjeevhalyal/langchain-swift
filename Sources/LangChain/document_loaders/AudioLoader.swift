@@ -47,7 +47,7 @@ public class AudioLoader: BaseLoader {
             let openAIClient = OpenAIKit.Client(httpClient: httpClient, configuration: configuration)
             defer {
                 // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-                try? httpClient.syncShutdown()
+                httpClient.shutdown()
             }
 //            do {
 //                let data = try Data(contentsOf: audio)

@@ -6,16 +6,20 @@
 //
 
 import Foundation
+
+nonisolated(unsafe) var printTrace = false
+nonisolated(unsafe) var m_env: [String: String] = [:]
+nonisolated(unsafe) var trace = false
+
 public struct LC {
 //    static var printTrace = true
-    static var printTrace = false
+    
     static let ID_KEY = "TRACE_ID"
     static let SKIP_TRACE_KEY = "SKIP_TRACE"
     static let TRACE_ID = UUID().uuidString + "-" + UUID().uuidString
-    static var env: [String: String] = [:]
-    static var trace = false
+    
     public static func initSet(_ env: [String: String]) {
-        LC.env = env
+        m_env = env
         if printTrace {
             if env[LC.ID_KEY] == nil && (env[LC.SKIP_TRACE_KEY] == nil || env[LC.SKIP_TRACE_KEY] == "false") {
                 print("⚠️ [WARING]", "\(LC.ID_KEY) not found, Please enter '\(LC.ID_KEY)=\(LC.TRACE_ID)' to trace LLM or enter '\(LC.SKIP_TRACE_KEY)=true' to skip trace at env.txt .")
@@ -39,7 +43,7 @@ public struct LC {
     }
     
     static func loadEnv() -> [String: String] {
-        LC.env
+        m_env
     }
 }
 

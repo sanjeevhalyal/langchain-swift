@@ -29,74 +29,74 @@ public class LLMResult {
 }
 
 
-public class LocalMLXLLMResult: LLMResult {
-    public let generation: AsyncThrowingStream<String, Error>?
+//public class LocalMLXLLMResult: LLMResult {
+//    public let generation: AsyncThrowingStream<String, Error>?
+//
+//    init(generation: AsyncThrowingStream<String, Error>? = nil, llm_output: String? = nil) {
+//        self.generation = generation
+//        super.init(llm_output: llm_output, stream: generation != nil && llm_output == nil)
+//    }
+//    
+//    public override func setOutput() async throws {
+//        if stream {
+//            llm_output = ""
+//            for try await c in generation! {
+//                llm_output! += c
+//            }
+//        }
+//    }
+    
+//    public override func getGeneration() -> AsyncThrowingStream<String?, Error> {
+//        return AsyncThrowingStream { continuation in
+//            Task {
+//                do {
+//                    for try await c in generation! {
+//                        continuation.yield(c)
+//                    }
+//                    continuation.finish()
+//                } catch {
+//                    continuation.finish(throwing: error)
+//                }
+//            }
+//            
+//        }
+//    }
+//}
 
-    init(generation: AsyncThrowingStream<String, Error>? = nil, llm_output: String? = nil) {
-        self.generation = generation
-        super.init(llm_output: llm_output, stream: generation != nil && llm_output == nil)
-    }
-    
-    public override func setOutput() async throws {
-        if stream {
-            llm_output = ""
-            for try await c in generation! {
-                llm_output! += c
-            }
-        }
-    }
-    
-    public override func getGeneration() -> AsyncThrowingStream<String?, Error> {
-        return AsyncThrowingStream { continuation in
-            Task {
-                do {
-                    for try await c in generation! {
-                        continuation.yield(c)
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
-            
-        }
-    }
-}
-
-public class OpenAIResult: LLMResult {
-    public let generation: AsyncThrowingStream<ChatStream, Error>?
-
-    init(generation: AsyncThrowingStream<ChatStream, Error>? = nil, llm_output: String? = nil) {
-        self.generation = generation
-        super.init(llm_output: llm_output, stream: generation != nil && llm_output == nil)
-    }
-    
-    public override func setOutput() async throws {
-        if stream {
-            llm_output = ""
-            for try await c in generation! {
-                if let message = c.choices.first?.delta.content {
-                    llm_output! += message
-                }
-            }
-        }
-    }
-    
-    public override func getGeneration() -> AsyncThrowingStream<String?, Error> {
-        return AsyncThrowingStream { continuation in    
-            Task {
-                do {
-                    for try await c in generation! {
-                        if let message = c.choices.first?.delta.content {
-                            continuation.yield(message)
-                        }
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
-            
-        }
-    }
-}
+//public class OpenAIResult: LLMResult {
+//    public let generation: AsyncThrowingStream<ChatStream, Error>?
+//
+//    init(generation: AsyncThrowingStream<ChatStream, Error>? = nil, llm_output: String? = nil) {
+//        self.generation = generation
+//        super.init(llm_output: llm_output, stream: generation != nil && llm_output == nil)
+//    }
+//    
+//    public override func setOutput() async throws {
+//        if stream {
+//            llm_output = ""
+//            for try await c in generation! {
+//                if let message = c.choices.first?.delta.content {
+//                    llm_output! += message
+//                }
+//            }
+//        }
+//    }
+//    
+//    public override func getGeneration() -> AsyncThrowingStream<String?, Error> {
+//        return AsyncThrowingStream { continuation in    
+//            Task {
+//                do {
+//                    for try await c in generation! {
+//                        if let message = c.choices.first?.delta.content {
+//                            continuation.yield(message)
+//                        }
+//                    }
+//                    continuation.finish()
+//                } catch {
+//                    continuation.finish(throwing: error)
+//                }
+//            }
+//            
+//        }
+//    }
+//}

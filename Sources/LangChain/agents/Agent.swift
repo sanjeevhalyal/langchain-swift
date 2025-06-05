@@ -14,9 +14,9 @@ public class AgentExecutor: DefaultChain {
         self.agent = agent
         self.tools = tools
         var cbs: [BaseCallbackHandler] = callbacks
-        if LC.addTraceCallbak() && !cbs.contains(where: { item in item is TraceCallbackHandler}) {
-            cbs.append(TraceCallbackHandler())
-        }
+//        if LC.addTraceCallbak() && !cbs.contains(where: { item in item is TraceCallbackHandler}) {
+//            cbs.append(TraceCallbackHandler())
+//        }
 //        assert(cbs.count == 1)
         super.init(memory: memory, outputKey: outputKey, inputKey: inputKey, callbacks: cbs)
     }
@@ -187,7 +187,7 @@ public class AgentExecutor: DefaultChain {
 }
 
 public func initialize_agent(llm: LLM, tools: [BaseTool], callbacks: [BaseCallbackHandler] = []) -> AgentExecutor {
-    return AgentExecutor(agent: ZeroShotAgent(llm_chain: LLMChain(llm: llm, prompt: ZeroShotAgent.create_prompt(tools: tools), parser: ZeroShotAgent.output_parser, stop: ["\nObservation: ", "\n\tObservation: "])), tools: tools, callbacks: callbacks)
+    return AgentExecutor(agent: ZeroShotAgent(llm_chain: LLMChain(llm: llm, prompt: ZeroShotAgent.create_prompt(tools: tools), parser: output_parser, stop: ["\nObservation: ", "\n\tObservation: "])), tools: tools, callbacks: callbacks)
 }
 
 public class Agent {
@@ -266,9 +266,9 @@ public class Agent {
 //            f"you return as final answer):\n{thoughts}"
 //        )
 }
-
+nonisolated(unsafe) let output_parser: MRKLOutputParser = MRKLOutputParser()
 public class ZeroShotAgent: Agent {
-    static let output_parser: MRKLOutputParser = MRKLOutputParser()
+    
         
     public static func create_prompt(tools: [BaseTool], prefix0: String = PREFIX, suffix: String = SUFFIX, format_instructions: String = FORMAT_INSTRUCTIONS)
         -> PromptTemplate

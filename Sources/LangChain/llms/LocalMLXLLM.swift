@@ -69,7 +69,21 @@ public class LocalMLXLLM: LLM {
         }
     }
     
+    public func generateFullText(
+        text: String,
+        stops: [String] = []
+    ) async throws -> String {
+        let stream = try await _generate(text: text, stops: stops)
+        var result = ""
+
+        for try await token in stream {
+            result += token
+        }
+
+        return result
+    }
+    
     public override func _send(text: String, stops: [String] = []) async throws -> LLMResult {
-        return LocalMLXLLMResult(generation: try await _generate(text: text, stops: stops))
+        return await LLMResult(llm_output: try generateFullText(text: text, stops: stops))
     }
 }

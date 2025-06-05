@@ -116,7 +116,7 @@ public class Ollama: LLM {
     public func sendJSON<Request: Encodable>(request: Request?, endpoint: String = "generate") async throws -> Data? {
         let httpClient = getHTTPClient()
         defer {
-            try? httpClient.syncShutdown()
+            httpClient.shutdown()
         }
         let requestURL = baseURL + "/api/" + endpoint
         var http = HTTPClientRequest(url: requestURL)

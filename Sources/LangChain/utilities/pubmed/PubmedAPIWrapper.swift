@@ -15,7 +15,7 @@ struct PubmedAPIWrapper {
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            httpClient.shutdown()
         }
         
         let baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"

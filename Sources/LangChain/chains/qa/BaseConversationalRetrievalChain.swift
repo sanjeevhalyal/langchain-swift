@@ -6,24 +6,26 @@
 //
 
 import Foundation
+let _template = """
+Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:
+"""
+nonisolated(unsafe) let CONDENSE_QUESTION_PROMPT = PromptTemplate(input_variables: ["chat_history", "question"], partial_variable: [:], template: _template)
+
 public class BaseConversationalRetrievalChain: DefaultChain {
 
-    static let _template = """
-    Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
-
-    Chat History:
-    {chat_history}
-    Follow Up Input: {question}
-    Standalone question:
-    """
-    static let CONDENSE_QUESTION_PROMPT = PromptTemplate(input_variables: ["chat_history", "question"], partial_variable: [:], template: _template)
+    
 
     let combineChain: BaseCombineDocumentsChain
     let condense_question_chain: LLMChain
     
     init(llm: LLM) {
         self.combineChain = StuffDocumentsChain(llm: llm)
-        self.condense_question_chain = LLMChain(llm: llm, prompt: BaseConversationalRetrievalChain.CONDENSE_QUESTION_PROMPT)
+        self.condense_question_chain = LLMChain(llm: llm, prompt: CONDENSE_QUESTION_PROMPT)
         super.init(outputKey: "", inputKey: "")
     }
     public func get_docs(question: String) async -> String {

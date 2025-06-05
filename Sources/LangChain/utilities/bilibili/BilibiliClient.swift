@@ -18,7 +18,7 @@ public struct BilibiliClient {
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            httpClient.shutdown()
         }
         do {
             var request = HTTPClientRequest(url: String(format: "https://api.bilibili.com/x/web-interface/view?bvid=%@", bvid))
@@ -119,7 +119,7 @@ public struct BilibiliClient {
             request.method = .GET
             defer {
                 // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-                try? httpClient.syncShutdown()
+                httpClient.shutdown()
             }
             let response = try await httpClient.execute(request, timeout: .seconds(30))
             if response.status == .found {

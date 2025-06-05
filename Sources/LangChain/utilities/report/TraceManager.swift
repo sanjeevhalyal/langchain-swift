@@ -17,12 +17,13 @@ struct Report: Codable {
     let metadata: [String: String]
     let createAt: Date
 }
-
+let REPORT_URL = "http://192.168.31.60:8083/rest/agent"
+nonisolated(unsafe) var shared: TraceManager = TraceManager()
 struct TraceManager {
 //    var reports: [Report] = []
-    static let REPORT_URL = "http://192.168.31.60:8083/rest/agent"
-    static var shared: TraceManager = TraceManager()
     
+    
+    nonisolated(unsafe) static var shared: TraceManager = shared
     mutating func insertReport(report: Report) async {
 //        reports.append(report)
         // TODO: end or error - start time, remove start entry at memery
@@ -36,10 +37,10 @@ struct TraceManager {
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            httpClient.shutdown()
         }
         do {
-            var request = HTTPClientRequest(url: TraceManager.REPORT_URL)
+            var request = HTTPClientRequest(url: REPORT_URL)
             request.method = .POST
             request.headers.add(name: "Content-Type", value: "application/json")
             let requestBody = try! JSONEncoder().encode(report)
