@@ -117,7 +117,7 @@ Thought: dog
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            try? httpClient.shutdown()
         }
         do {
             var request = HTTPClientRequest(url: url)
@@ -178,7 +178,7 @@ Thought: dog
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            try? httpClient.shutdown()
         }
         let accessToken = await BaiduClient.getAccessToken(ak: "vjLPbepeMfSIjZyzpuMCufhv", sk: "WAANBg7crEIlozpwPfplPagNzspx49Gy", httpClient: httpClient)
 //        print("accessToken: \(accessToken!)")
@@ -191,7 +191,7 @@ Thought: dog
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            try? httpClient.shutdown()
         }
         let result = await BaiduClient.ocrImage(ak: "vjLPbepeMfSIjZyzpuMCufhv", sk: "WAANBg7crEIlozpwPfplPagNzspx49Gy", httpClient: httpClient, image: imageData)
 //        print("ocr: \(result!)")
@@ -301,7 +301,7 @@ Thought: dog
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
         defer {
             // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-            try? httpClient.syncShutdown()
+            try? httpClient.shutdown()
         }
         do {
             var request = HTTPClientRequest(url: url)
@@ -615,7 +615,7 @@ Action Input: the input to the action
 //        let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
 //        defer {
 //            // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-//            try? httpClient.syncShutdown()
+//            try? httpClient.shutdown()
 //        }
 //        var list = await YoutubeHackClient.list_transcripts(video_id: "JdM6AruIKT4",
 //                                                            httpClient: httpClient)
@@ -636,7 +636,7 @@ Action Input: the input to the action
 //        let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
 //        defer {
 //            // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-//            try? httpClient.syncShutdown()
+//            try? httpClient.shutdown()
 //        }
 //        var list = await YoutubeHackClient.list_transcripts(video_id: "JdM6AruIKT4",
 //                                                            httpClient: httpClient)
@@ -658,7 +658,7 @@ Action Input: the input to the action
 //        let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
 //        defer {
 //            // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-//            try? httpClient.syncShutdown()
+//            try? httpClient.shutdown()
 //        }
 //        let list = await YoutubeHackClient.list_transcripts(video_id: "JdM6AruIKT4",
 //                                                            httpClient: httpClient)
@@ -679,7 +679,7 @@ Action Input: the input to the action
 //        let httpClient = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup))
 //        defer {
 //            // it's important to shutdown the httpClient after all requests are done, even if one failed. See: https://github.com/swift-server/async-http-client
-//            try? httpClient.syncShutdown()
+//            try? httpClient.shutdown()
 //        }
 //        
 //        let info = await YoutubeHackClient.info(video_id: "JdM6AruIKT4", httpClient: httpClient)

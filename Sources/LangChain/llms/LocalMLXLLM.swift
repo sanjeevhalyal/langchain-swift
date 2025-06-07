@@ -69,7 +69,7 @@ public class LocalMLXLLM: LLM {
         }
     }
     
-    public func generate(input: UserInput, stops: [String] = []) async -> LLMResult? {
+    public func generate(input: UserInput, stops: [String] = [], stream:Bool = false) async -> LocalMLXLLMResult? {
         let reqId = UUID().uuidString
         var cost = 0.0
         let now = Date.now.timeIntervalSince1970
@@ -79,10 +79,16 @@ public class LocalMLXLLM: LLM {
             if let cache = self.cache {
                 if let llmResult = await cache.lookup(prompt: text) {
                     callEnd(output: llmResult.llm_output!, reqId: reqId, cost: 0)
-                    return llmResult
+                    return (llmResult as? LocalMLXLLMResult)!
                 }
             }
-            let llmResult = try await _send(input: input, stops: stops)
+            var llmResult: LocalMLXLLMResult
+            if stream{
+                llmResult = try await _sendStream(input: input, stops: stops)
+            }
+            else{
+                llmResult = try await _send(input: input, stops: stops)
+            }
             if let cache = self.cache {
                 if llmResult.llm_output != nil {
                     await cache.update(prompt: text, return_val: llmResult)
@@ -117,7 +123,12 @@ public class LocalMLXLLM: LLM {
         return result
     }
     
-    public func _send(input: UserInput, stops: [String] = []) async throws -> LLMResult {
-        return await LLMResult(llm_output: try generateFullText(input: input, stops: stops))
+    public func _send(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
+        return await LocalMLXLLMResult(llm_output: try generateFullText(input: input, stops: stops))
     }
+    public func _sendStream(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
+        return try! await LocalMLXLLMResult( generation:  _generate(input: input, stops: stops))
+        
+    }
+    
 }
