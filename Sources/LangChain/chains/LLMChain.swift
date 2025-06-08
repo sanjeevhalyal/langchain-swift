@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MLXLMCommon
 
 public class LLMChain: DefaultChain {
     let llm: LLM
@@ -65,6 +66,18 @@ public class LLMChain: DefaultChain {
     
     public func plan(input: String, agent_scratchpad: String) async -> Parsed {
         return await apply(input_list: ["question": input, "thought": agent_scratchpad])
+    }
+    
+    public func plan(input_prompt: String) async -> Parsed {
+        do {
+            //call llm
+            let llmResult = await self.llm.generate(text: input_prompt, stops:  stop)
+            try await llmResult?.setOutput()
+            return create_outputs(output: llmResult)
+        } catch {
+            print("LLM chain generate \(error.localizedDescription)")
+            return create_outputs(output: nil)
+        }
     }
     
     public func predict(args: [String: String] ) async -> String? {

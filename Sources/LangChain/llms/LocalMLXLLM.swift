@@ -8,13 +8,16 @@ import MLXLLM
 import MLXLMCommon
 import Hub
 import Foundation
+import Tokenizers
+import MLX
+
 
 
 
 public class LocalMLXLLM: LLM {
     let modelConfiguration: ModelConfiguration
     let modelContainer: ModelContainer
-    let generateParameters = GenerateParameters(maxTokens: 500, temperature: 0.6)
+    let generateParameters = GenerateParameters(maxTokens: 2000, temperature: 0.6)
     public init(
         modelConfiguration: ModelConfiguration,
         callbacks: [BaseCallbackHandler] = [],
@@ -30,7 +33,7 @@ public class LocalMLXLLM: LLM {
         super.init(callbacks: callbacks, cache: cache)
     }
     
-    public func _generate(
+    public func _generateAsync(
         input: UserInput,
         stops: [String] = []
     ) async throws -> AsyncThrowingStream<String, Error> {
@@ -69,66 +72,92 @@ public class LocalMLXLLM: LLM {
         }
     }
     
-    public func generate(input: UserInput, stops: [String] = [], stream:Bool = false) async -> LocalMLXLLMResult? {
-        let reqId = UUID().uuidString
-        var cost = 0.0
-        let now = Date.now.timeIntervalSince1970
-        let text: String = input.prompt.description
-        callStart(prompt: text, reqId: reqId)
-        do {
-            if let cache = self.cache {
-                if let llmResult = await cache.lookup(prompt: text) {
-                    callEnd(output: llmResult.llm_output!, reqId: reqId, cost: 0)
-                    return (llmResult as? LocalMLXLLMResult)!
-                }
-            }
-            var llmResult: LocalMLXLLMResult
-            if stream{
-                llmResult = try await _sendStream(input: input, stops: stops)
-            }
-            else{
-                llmResult = try await _send(input: input, stops: stops)
-            }
-            if let cache = self.cache {
-                if llmResult.llm_output != nil {
-                    await cache.update(prompt: text, return_val: llmResult)
-                }
-            }
-            cost = Date.now.timeIntervalSince1970 - now
-            if !llmResult.stream {
-                callEnd(output: llmResult.llm_output!, reqId: reqId, cost: cost)
-            } else {
-                callEnd(output: "[LLM is streamable]", reqId: reqId, cost: cost)
-            }
-            return llmResult
-        } catch {
-            callCatch(error: error, reqId: reqId, cost: cost)
-            print("LLM generate \(error.localizedDescription)")
-            return nil
-        }
-        
-    }
-    
-    public func generateFullText(
-        input: UserInput,
+
+    public func _generate(
+        input: String,
         stops: [String] = []
     ) async throws -> String {
-        let stream = try await _generate(input: input, stops: stops)
-        var result = ""
+        let generateParam = self.generateParameters
+        let container = self.modelContainer
+        debugPrint("✅ start generating")
+        
+        var output: String
+        output = try await container.perform { context in
+            var output: String = ""
+            var prepared : LMInput?
+            do {
+                var maxLength: Int = 2024
+                let truncation: Bool = false
+                debugPrint(input)
+                var encodedTokens = context.tokenizer.encode(text: input, addSpecialTokens: false)
+                maxLength = maxLength ?? encodedTokens.count
+                if encodedTokens.count > maxLength {
+                    if truncation {
+                        encodedTokens = Array(encodedTokens.prefix(maxLength))
+                    }
+                }
 
-        for try await token in stream {
-            result += token
+                prepared = LMInput(tokens: MLXArray(encodedTokens))
+                debugPrint("✅ prepared")
+            } catch {
+                // breakpoint here on failure
+                debugPrint("⛔ prepare failed:", error)
+                throw error    // re-throw so the test sees the failure
+            }
+            
+            let _ = try MLXLMCommon.generate(
+                input: prepared!,
+                parameters: generateParam,
+                context: context
+            ) { tokens in
+                if let lastToken = tokens.last {
+                    let tokenText = context.tokenizer.decode(tokens: [lastToken])
+                    output += tokenText
+                }
+                
+                if tokens.count >= (generateParam.maxTokens ?? 0) {
+                    return .stop
+                }
+                return .more
+            }
+            return output
+        
         }
-
-        return result
-    }
-    
-    public func _send(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
-        return await LocalMLXLLMResult(llm_output: try generateFullText(input: input, stops: stops))
-    }
-    public func _sendStream(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
-        return try! await LocalMLXLLMResult( generation:  _generate(input: input, stops: stops))
+        debugPrint(output)
+        debugPrint("✅ output")
+        return  output
+//        let parts = output.components(separatedBy: "</think>")
+//        return parts.last ?? ""
         
     }
+
+   
+    
+    
+    public override func _send(text: String, stops: [String] = []) async throws -> LocalMLXLLMResult {
+        let result = try await _generate(input:text, stops: stops)
+        print(result)
+        return LocalMLXLLMResult(llm_output: result)
+    }
+    
+//    public func _send(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
+//        let result = try await _generate(input: input, stops: stops)
+//        print(result)
+//        return LocalMLXLLMResult(llm_output: result)
+//    }
+    
+//    public override func _send(text: String, stops: [String] = []) async throws -> LocalMLXLLMResult {
+//        let result = try await generateFullText(text: text, stops: stops)
+//        print(result)
+//        return LocalMLXLLMResult(llm_output: result)
+//    }
+    
+//    public func _send(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
+//        return await LocalMLXLLMResult(llm_output: try generateFullText(input: input, stops: stops))
+//    }
+//    public func _sendStream(input: UserInput, stops: [String] = []) async throws -> LocalMLXLLMResult {
+//        return try! await LocalMLXLLMResult( generation:  _generateAsync(input: input, stops: stops))
+//        
+//    }
     
 }
