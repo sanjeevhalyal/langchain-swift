@@ -180,9 +180,9 @@ public class DateTool: BaseTool {
   }
 }
 
-public class ReminderTool: BaseTool {
-    public override init(callbacks: [BaseCallbackHandler] = []) {
-        super.init(callbacks: callbacks)
+public class ReminderTool: CustomBaseTool {
+    public override init(is_exit_tool:Bool, callbacks: [BaseCallbackHandler] = []) {
+        super.init(is_exit_tool:is_exit_tool,callbacks: callbacks)
     }
 
     public override func name() -> String {
@@ -287,10 +287,10 @@ func agentToolTest() async throws {
 //    let local_llm = try await LocalMLXLLM(modelConfiguration: LLMRegistry.qwen3_0_6b_4bit)
     let local_llm = try await LocalMLXLLM(modelConfiguration: LLMRegistry.qwen3_1_7b_4bit)
     
-    let agent = initialize_custom_agent(llm: local_llm, tools: [ReminderTool(), DateTool(), PromptTool()])
+    let agent = initialize_custom_agent(llm: local_llm, tools: [ReminderTool(is_exit_tool: true), DateTool(), PromptTool()])
     
     
-    let res = await agent.run(args: "You can use reminder tool to create a reminder.or Use prompt tool to ask me any additional questions.\nremind me to workout tomorrow")
+    let res = await agent.run(args: "remind me to workout tomorrow")
 //        let res = await agent.run(args: "Query the weather at -48.4, 28.5 today")
     print(res)
     switch res {

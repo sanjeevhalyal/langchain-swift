@@ -250,3 +250,12 @@ public func initialize_custom_agent(llm: LocalMLXLLM, tools: [BaseTool], callbac
     let agent = CustomZeroShotAgent(llm_chain: LLMChain(llm: llm, parser: custom_output_parser, stop: ["\nObservation: ", "\n\tObservation: "]),tools: tools, llm: llm)
     return AgentExecutor(agent: agent, tools: tools, callbacks: callbacks)
 }
+
+
+public class CustomBaseTool : BaseTool{
+    let is_exit_tool: Bool
+    public init(is_exit_tool: Bool, callbacks: [BaseCallbackHandler] = []) {
+        self.is_exit_tool = is_exit_tool
+        super.init(callbacks: callbacks)
+    }
+}

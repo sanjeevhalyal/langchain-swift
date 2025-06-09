@@ -124,6 +124,15 @@ public class AgentExecutor: DefaultChain {
                 if observation.count > 1000 {
                     observation = String(observation.prefix(1000))
                 }
+                
+                if observation.contains("invalid"){
+                    return (step, observation)
+                }
+                if let custom = tool as? CustomBaseTool {
+                    if custom.is_exit_tool {
+                        return (.finish(.init(final: observation)), action.action + "->" + action.input)
+                    }
+                }
                 return (step, observation)
             } catch {
                 print("\(error.localizedDescription) at run \(tool.name()) tool.")
